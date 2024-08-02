@@ -10,6 +10,7 @@ class CustomTextFormField extends StatelessWidget {
   TextEditingController? controller;
   double width;
   double height;
+  int maxLength;
 
   CustomTextFormField({
     super.key,
@@ -21,6 +22,7 @@ class CustomTextFormField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.width = 358,
     this.height = 50,
+    this.maxLength = 6,
   });
 
   @override
@@ -32,7 +34,7 @@ class CustomTextFormField extends StatelessWidget {
           height: 40,
           child: TextFormField(
             cursorColor: Colors.white,
-            maxLength: 6,
+            maxLength: maxLength,
             decoration: InputDecoration(
               suffixIcon: suffixIcon,
               counterText: "",

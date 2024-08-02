@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../config/utils/custom_Item.dart';
+import '../data_screen/accounts_screen.dart';
 
 class GamingScreen extends StatelessWidget {
   static String routeName = 'gaming-screen';
@@ -45,7 +46,15 @@ class GamingScreen extends StatelessWidget {
                     mainAxisSpacing: 5),
                 itemBuilder: (context, index) {
                   return GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          ServiceScreen.routeName,
+                          arguments: {
+                            'serviceName': itemsTag[index],
+                          },
+                        );
+                      },
                       child: CustomItem(
                         tagText: itemsTag[index],
                         imagePath: itemsImages[index],
