@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color (custom background) -->
+    <background android:drawable="@color/custom_icon" />
+    <!-- Foreground icon (image to show on top of the background) -->
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>

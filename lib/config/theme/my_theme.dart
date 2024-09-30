@@ -29,7 +29,7 @@ class MyTheme {
       ),
       textTheme: TextTheme(
         titleLarge: TextStyle(
-          fontSize: 22,
+          fontSize: 23,
           fontWeight: FontWeight.bold,
           color: whiteColor,
         ),

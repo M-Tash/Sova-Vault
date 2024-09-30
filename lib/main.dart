@@ -5,7 +5,6 @@ import 'package:sova_vault/feature/content_pages/gaming_screen.dart';
 import 'package:sova_vault/feature/content_pages/social_media_screen.dart';
 import 'package:sova_vault/feature/data_screen/accounts_screen.dart';
 import 'package:sova_vault/feature/home/home_screen.dart';
-import 'package:sova_vault/feature/intro/biometric_screen.dart';
 import 'package:sova_vault/feature/intro/password_screen.dart';
 import 'package:sova_vault/feature/intro/splash_screen.dart'; // Import the SplashScreen
 import 'package:sova_vault/feature/intro/welcome_screen.dart';
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
         SplashScreen.routeName: (context) => SplashScreen(),
         WelcomeScreen.routeName: (context) => const WelcomeScreen(),
         PasswordScreen.routeName: (context) => PasswordScreen(),
-        BiometricScreen.routeName: (context) => const BiometricScreen(),
+        // BiometricScreen.routeName: (context) => const BiometricScreen(),
         HomeScreen.routeName: (context) => HomeScreen(),
         SettingsScreen.routeName: (context) => SettingsScreen(),
         ChangePasswordScreen.routeName: (context) => ChangePasswordScreen(),

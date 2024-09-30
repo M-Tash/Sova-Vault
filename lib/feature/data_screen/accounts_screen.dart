@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For Clipboard functionality
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../config/theme/my_theme.dart';
+import '../../config/utils/custom_snack_bar.dart';
 import '../../model/account_model.dart';
 import 'add_account.dart';
 
@@ -56,8 +58,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
   Future<void> deleteAccount(int index) async {
     if (index >= 0 && index < accounts.length) {
-      String key = keys[index]; // Get the corresponding key
-      if (key.isEmpty) return; // Skip if the key is empty
+      String key = keys[index];
+      if (key.isEmpty) return;
 
       String emailKey = '$key-email';
       String passwordKey = '$key-password';
@@ -80,100 +82,181 @@ class _ServiceScreenState extends State<ServiceScreen> {
     }
   }
 
+  // Function to copy both email/username and password to clipboard
+  void copyBoth(int index) {
+    String email = accounts[index].email;
+    String password = accounts[index].password;
+    String combinedText =
+        "$email:$password"; // Concatenate email and password with colon
+
+    Clipboard.setData(ClipboardData(text: combinedText));
+
+    // Show a SnackBar to notify the user
+    CustomSnackBar.showCustomSnackBar(
+        context, 'Email/Username and Password copied to clipboard');
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Get the screen size and orientation for responsive design
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.serviceName),
+        title: Text(
+          widget.serviceName,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontSize: isPortrait
+                    ? 20
+                    : 24, // Adjust font size based on orientation
+              ),
+        ),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(
+          child: const Icon(
             Icons.arrow_back_ios_new,
             color: Colors.white,
             size: 18,
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: accounts.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: SelectableText(accounts[index].email),
-                  subtitle: isObscureList[index]
-                      ? Text('********')
-                      : SelectableText(accounts[index].password),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
+      body: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal:
+              screenSize.width * 0.02, // Adjust padding based on screen size
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: accounts.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: SelectableText(
+                      accounts[index].email,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: isPortrait ? 16 : 22, // Adjust font size
+                          ),
+                    ),
+                    subtitle: isObscureList[index]
+                        ? Text(
+                            '********',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  fontSize:
+                                      isPortrait ? 16 : 18, // Adjust font size
+                                ),
+                          )
+                        : SelectableText(
+                            accounts[index].password,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  fontSize:
+                                      isPortrait ? 16 : 18, // Adjust font size
+                                ),
+                          ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GestureDetector(
+                          child: isObscureList[index]
+                              ? Icon(Icons.visibility_off_outlined,
+                                  size: isPortrait
+                                      ? screenSize.width * 0.05
+                                      : screenSize.width * 0.04,
+                                  color: MyTheme.whiteColor)
+                              : Icon(Icons.visibility_outlined,
+                                  size: isPortrait
+                                      ? screenSize.width * 0.05
+                                      : screenSize.width * 0.04,
+                                  color: MyTheme.whiteColor),
+                          onTap: () {
+                            setState(() {
+                              isObscureList[index] = !isObscureList[index];
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          child: Icon(
+                            Icons.copy,
+                            size: isPortrait
+                                ? screenSize.width * 0.05
+                                : screenSize.width * 0.04,
+                            color: MyTheme.whiteColor,
+                          ),
+                          onTap: () =>
+                              copyBoth(index), // Call copyBoth function on tap
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          child: Icon(
+                            Icons.delete,
+                            size: isPortrait
+                                ? screenSize.width * 0.05
+                                : screenSize.width * 0.04,
+                            color: MyTheme.whiteColor,
+                          ),
+                          onTap: () async {
+                            await deleteAccount(index);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+              child: GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AddAccountScreen(serviceName: widget.serviceName),
+                    ),
+                  );
+                  loadAccounts(); // Reload accounts after adding a new one
+                },
+                child: Container(
+                  height: isPortrait ? 48 : 55,
+                  width: double.infinity,
+                  // Full width for better responsiveness
+                  decoration: BoxDecoration(
+                    color: MyTheme.secondaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        child: isObscureList[index]
-                            ? Icon(Icons.visibility_off_outlined,
-                                size: 18, color: MyTheme.whiteColor)
-                            : Icon(Icons.visibility_outlined,
-                                size: 18, color: MyTheme.whiteColor),
-                        onTap: () {
-                          setState(() {
-                            isObscureList[index] = !isObscureList[index];
-                          });
-                        },
+                      const Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.white,
+                        size: 19,
                       ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                        child: Icon(Icons.delete,
-                            size: 18, color: MyTheme.whiteColor),
-                        onTap: () async {
-                          await deleteAccount(index);
-                        },
+                      const SizedBox(width: 10),
+                      Text(
+                        'Add Account',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize:
+                                  isPortrait ? 16 : 18, // Adjust font size
+                            ),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
-            child: GestureDetector(
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddAccountScreen(serviceName: widget.serviceName),
-                  ),
-                );
-                loadAccounts(); // Reload accounts after adding a new one
-              },
-              child: Container(
-                height: 48,
-                width: 358,
-                decoration: BoxDecoration(
-                    color: MyTheme.secondaryColor,
-                    borderRadius: BorderRadius.circular(8)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.white,
-                      size: 19,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Add Account',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

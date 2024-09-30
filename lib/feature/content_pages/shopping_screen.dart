@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config/theme/my_theme.dart';
 import '../../config/utils/custom_Item.dart';
 import '../data_screen/accounts_screen.dart';
 
@@ -17,8 +18,8 @@ class ShoppingScreen extends StatelessWidget {
     'assets/images/shopping/Breadfast.jpg',
     'assets/images/shopping/Dubizzle.jpg',
     'assets/images/shopping/Mrsool.jpg',
-    'assets/images/shopping/Ubuy.jpg',
-    'assets/images/shopping/AliExpress.jpg',
+    'assets/images/shopping/Ubuy.png',
+    'assets/images/shopping/AliExpress.png',
   ];
 
   final List<String> itemsTag = [
@@ -40,17 +41,23 @@ class ShoppingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size and orientation
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping'),
         leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 18,
-          ),
-        ),
+            onTap: () => Navigator.pop(context),
+            child: Icon(
+              Icons.arrow_back_ios,
+              size: isPortrait
+                  ? screenSize.width * 0.06
+                  : screenSize.width * 0.04, // Adjust the size dynamically
+              color: MyTheme.whiteColor,
+            )),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -61,10 +68,14 @@ class ShoppingScreen extends StatelessWidget {
             Expanded(
               child: GridView.builder(
                 itemCount: itemsTag.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  // Adjust the number of columns based on screen orientation
+                  crossAxisCount: isPortrait ? 2 : 4,
                   crossAxisSpacing: 20,
-                  mainAxisSpacing: 0,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: isPortrait
+                      ? 1.0
+                      : 1.0, // Adjust aspect ratio for portrait/landscape
                 ),
                 itemBuilder: (context, index) {
                   return GestureDetector(
@@ -82,7 +93,9 @@ class ShoppingScreen extends StatelessWidget {
                         tagText: itemsTag[index],
                         imagePath: itemsImages[index],
                         style: Theme.of(context).textTheme.titleSmall,
-                        height: 120,
+                        height: isPortrait
+                            ? 120
+                            : 100, // Adjust height based on orientation
                       ),
                     ),
                   );

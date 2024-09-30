@@ -25,9 +25,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   File? _image;
   final List<String> itemsImages = [
-    'assets/images/gaming.jpg',
-    'assets/images/social.jpg',
-    'assets/images/email.jpeg',
+    'assets/images/gaming.png',
+    'assets/images/social.png',
+    'assets/images/email.png',
     'assets/images/shopping.png',
   ];
   final List<String> itemsTag = [
@@ -95,11 +95,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen size and orientation
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    // Adjust avatar radius based on screen size
+    final double avatarRadius =
+        isPortrait ? screenSize.width * 0.2 : screenSize.width * 0.12;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Dashboard",
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context)
+              .textTheme
+              .titleLarge!
+              .copyWith(fontSize: isPortrait ? 28 : 30),
         ),
         centerTitle: true,
         actions: [
@@ -110,88 +122,106 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pushNamed(context, SettingsScreen.routeName),
               child: Image.asset(
                 'assets/icons/settings.png',
-                width: 28,
-                height: 28,
+                width: screenSize.width * 0.08,
+                height: screenSize.height * 0.08,
               ),
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: Stack(
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    RepaintBoundary(
-                      child: CircleAvatar(
-                        backgroundColor: MyTheme.primaryColor,
-                        radius: 80,
-                        backgroundImage: _image != null
-                            ? FileImage(_image!)
-                            : const AssetImage('assets/images/profile.png')
-                                as ImageProvider,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 15,
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              width: 1,
-                              color: Colors.blueAccent,
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Stack(
+                        children: [
+                          RepaintBoundary(
+                            child: CircleAvatar(
+                              backgroundColor: MyTheme.primaryColor,
+                              radius: avatarRadius,
+                              backgroundImage: _image != null
+                                  ? FileImage(_image!)
+                                  : const AssetImage(
+                                          'assets/images/profile.png')
+                                      as ImageProvider,
                             ),
                           ),
-                          child: CircleAvatar(
-                            radius: 12,
-                            backgroundColor: MyTheme.primaryColor,
-                            child: const Icon(Icons.add,
-                                color: Colors.blue, size: 12),
+                          Positioned(
+                            bottom: 0,
+                            right: 15,
+                            child: GestureDetector(
+                              onTap: _pickImage,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: MyTheme.primaryColor,
+                                  child: const Icon(Icons.add,
+                                      color: Colors.blue, size: 12),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
-              const SizedBox(height: 70),
-              SizedBox(
-                height: 400,
-                child: GridView.builder(
-                  itemCount: itemsTag.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                  ),
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, route[index]);
-                      },
-                      child: RepaintBoundary(
-                        child: CustomItem(
-                          tagText: itemsTag[index],
-                          imagePath: itemsImages[index],
-                          style: Theme.of(context).textTheme.titleLarge,
-                          height: 135,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: SizedBox(
+              height: isPortrait
+                  ? screenSize.height * 0.48
+                  : screenSize.height * 0.4,
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                // Prevent scrolling
+                itemCount: itemsTag.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  // Adjust number of columns based on orientation
+                  crossAxisCount: isPortrait ? 2 : 4,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                ),
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, route[index]);
+                    },
+                    child: RepaintBoundary(
+                      child: CustomItem(
+                        tagText: itemsTag[index],
+                        imagePath: itemsImages[index],
+                        style: Theme.of(context).textTheme.titleLarge,
+                        height: isPortrait ? 130 : 110, // Adjust height
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          SizedBox(
+            height: isPortrait ? 10 : 5,
+          ),
+        ],
       ),
     );
   }
