@@ -4,6 +4,7 @@ class MyTheme {
   static Color primaryColor = const Color(0xff121721);
   static Color lightPrimaryColor = const Color(0xff1A2133);
   static Color secondaryColor = const Color(0xff243047);
+  static Color logoColor = const Color(0xFFE1E1E1);
   static Color lightGreyColor = const Color(0xff94A6C7);
   static Color greyColor = const Color(0xff94B0C7);
   static Color whiteColor = const Color(0xffFFFFFF);

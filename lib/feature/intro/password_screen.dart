@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sova_vault/config/utils/custom_form_field.dart';
 import 'package:sova_vault/feature/home/home_screen.dart';
 
@@ -22,6 +25,37 @@ class _PasswordScreenState extends State<PasswordScreen> {
   bool isObscure = true;
   bool isObscure2 = true;
 
+  // Initialize FlutterSecureStorage instance
+  final storage = const FlutterSecureStorage();
+  bool isSwitched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSwitchState(); // Load the switch state when the screen initializes
+  }
+
+  // Load the switch state from SharedPreferences
+  Future<void> _loadSwitchState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isSwitched = prefs.getBool('biometric_enabled') ?? false;
+    });
+  }
+
+  // Save the switch state to SharedPreferences
+  Future<void> _saveSwitchState(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('biometric_enabled', value);
+  }
+
+  void toggleSwitch(bool value) {
+    setState(() {
+      isSwitched = value;
+    });
+    _saveSwitchState(value); // Save the new state when the switch is toggled
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,16 +69,12 @@ class _PasswordScreenState extends State<PasswordScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(
-              height: 25,
-            ),
+            const SizedBox(height: 25),
             Text(
               'Set up your Password',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 35),
               child: Text(
@@ -52,31 +82,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 style: Theme.of(context).textTheme.displayLarge,
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 35),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Password',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    "Your password must be 6 numbers.",
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 35),
               child: Form(
@@ -88,15 +94,12 @@ class _PasswordScreenState extends State<PasswordScreen> {
                       'Create Password',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5),
                     CustomTextFormField(
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Please Enter Your Password';
                         }
-
                         return null;
                       },
                       controller: passwordController,
@@ -105,11 +108,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
                         child: isObscure
                             ? Icon(Icons.visibility_off_outlined,
                                 size: 18, color: MyTheme.whiteColor)
-                            : Icon(
-                                Icons.visibility_outlined,
-                                size: 18,
-                                color: MyTheme.whiteColor,
-                              ),
+                            : Icon(Icons.visibility_outlined,
+                                size: 18, color: MyTheme.whiteColor),
                         onTap: () {
                           setState(() {
                             isObscure = !isObscure;
@@ -117,18 +117,14 @@ class _PasswordScreenState extends State<PasswordScreen> {
                         },
                       ),
                       isSuffixIcon: true,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.text,
                     ),
-                    const SizedBox(
-                      height: 25,
-                    ),
+                    const SizedBox(height: 25),
                     Text(
                       'Confirm Password',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5),
                     CustomTextFormField(
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -138,7 +134,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
                             passwordController.text) {
                           return "Password doesn't match";
                         }
-
                         return null;
                       },
                       controller: confirmPasswordController,
@@ -147,11 +142,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
                         child: isObscure2
                             ? Icon(Icons.visibility_off_outlined,
                                 size: 18, color: MyTheme.whiteColor)
-                            : Icon(
-                                Icons.visibility_outlined,
-                                size: 18,
-                                color: MyTheme.whiteColor,
-                              ),
+                            : Icon(Icons.visibility_outlined,
+                                size: 18, color: MyTheme.whiteColor),
                         onTap: () {
                           setState(() {
                             isObscure2 = !isObscure2;
@@ -159,20 +151,45 @@ class _PasswordScreenState extends State<PasswordScreen> {
                         },
                       ),
                       isSuffixIcon: true,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.text,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Biometrics',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const Spacer(),
+                        CupertinoSwitch(
+                          value: isSwitched,
+                          onChanged: toggleSwitch,
+                          trackColor: MyTheme.secondaryColor,
+                          activeColor: Colors.blue,
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 140, bottom: 30),
+              padding: const EdgeInsets.only(top: 160, bottom: 30),
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
                   if (formKey.currentState?.validate() ?? false) {
-                    // Handle valid PIN input
-                    Navigator.pushReplacementNamed(
-                        context, HomeScreen.routeName);
+                    // Save the password securely
+                    await storage.write(
+                        key: 'user_password', value: passwordController.text);
+
+                    // Ensure the widget is still mounted before navigating
+                    if (mounted) {
+                      // Navigate to the HomeScreen
+                      Navigator.pushReplacementNamed(
+                          context, HomeScreen.routeName);
+                    }
                   }
                 },
                 child: Container(

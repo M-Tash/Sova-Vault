@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:sova_vault/config/theme/my_theme.dart';
 import 'package:sova_vault/feature/intro/password_screen.dart';
 
@@ -38,10 +37,12 @@ class WelcomeScreen extends StatelessWidget {
             height: 20,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 35),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-              'Your vault contains all your most important information. Set up a Master Password or enable biometric unlock to keep it safe.',
-              style: Theme.of(context).textTheme.titleSmall,
+              'Securely store all your passwords in one place with our vault. For enhanced protection, set up a Master Password or enable biometric unlock. Rest assured, your data stays offline for maximum safety.',
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
           const SizedBox(
@@ -118,7 +119,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          Spacer(),
+          const Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
             child: GestureDetector(

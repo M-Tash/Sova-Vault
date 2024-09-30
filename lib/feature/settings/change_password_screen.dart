@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sova_vault/config/utils/custom_snack_bar.dart';
 
 import '../../config/theme/my_theme.dart';
 import '../../config/utils/custom_form_field.dart';
@@ -16,12 +18,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   var formKey = GlobalKey<FormState>();
 
   var passwordController = TextEditingController();
-
   var confirmPasswordController = TextEditingController();
 
   bool isObscure = true;
-
   bool isObscure2 = true;
+
+  // Initialize FlutterSecureStorage instance
+  final storage = const FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -46,23 +49,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Text(
                 'Change Your Master Password',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Text(
                 "You should set a secure master password that you'll remember.",
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -70,18 +67,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     'Password',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Text(
                     "Your password must be 6 numbers.",
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ],
               ),
-              const SizedBox(
-                height: 15,
-              ),
+              const SizedBox(height: 15),
               Form(
                 key: formKey,
                 child: Column(
@@ -91,9 +84,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       'Create Password',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5),
                     CustomTextFormField(
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -108,11 +99,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         child: isObscure
                             ? Icon(Icons.visibility_off_outlined,
                                 size: 18, color: MyTheme.whiteColor)
-                            : Icon(
-                                Icons.visibility_outlined,
-                                size: 18,
-                                color: MyTheme.whiteColor,
-                              ),
+                            : Icon(Icons.visibility_outlined,
+                                size: 18, color: MyTheme.whiteColor),
                         onTap: () {
                           setState(() {
                             isObscure = !isObscure;
@@ -120,18 +108,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         },
                       ),
                       isSuffixIcon: true,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.text,
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
                     Text(
                       'Confirm Password',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5),
                     CustomTextFormField(
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -150,11 +134,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         child: isObscure2
                             ? Icon(Icons.visibility_off_outlined,
                                 size: 18, color: MyTheme.whiteColor)
-                            : Icon(
-                                Icons.visibility_outlined,
-                                size: 18,
-                                color: MyTheme.whiteColor,
-                              ),
+                            : Icon(Icons.visibility_outlined,
+                                size: 18, color: MyTheme.whiteColor),
                         onTap: () {
                           setState(() {
                             isObscure2 = !isObscure2;
@@ -162,24 +143,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         },
                       ),
                       isSuffixIcon: true,
-                      keyboardType: TextInputType.phone,
+                      keyboardType: TextInputType.text,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 140,
-              ),
+              const SizedBox(height: 140),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     if (formKey.currentState?.validate() ?? false) {
-                      // Handle valid PIN input
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('PIN is valid!')),
-                      );
+                      // Save the new password securely
+                      await storage.write(
+                          key: 'user_password', value: passwordController.text);
+
+                      if (mounted) {
+                        // Show a success message
+                        CustomSnackBar.showCustomSnackBar(
+                            context, 'Password has been changed successfully!');
+
+                        // Optionally, navigate back or to another screen
+                        Navigator.pop(context);
+                      }
                     }
                   },
                   child: Container(
@@ -196,7 +183,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

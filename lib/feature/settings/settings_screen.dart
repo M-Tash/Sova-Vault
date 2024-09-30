@@ -1,12 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_Item.dart';
-import '../../config/utils/custom_bottom_navigation_bar.dart';
 import 'change_password_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -21,23 +17,31 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isSwitched = false;
 
-  void toggleSwitch(bool value) {
-    if (isSwitched == false) {
-      setState(() {
-        isSwitched = true;
-      });
-      // Call your function here when the switch is turned on
-      onSwitchTurnedOn();
-    } else {
-      setState(() {
-        isSwitched = false;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadSwitchState(); // Load the switch state when the screen initializes
   }
 
-  void onSwitchTurnedOn() {
-    // Your function code here
-    print("Switch is turned ON");
+  // Load the switch state from SharedPreferences
+  Future<void> _loadSwitchState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isSwitched = prefs.getBool('biometric_enabled') ?? false;
+    });
+  }
+
+  // Save the switch state to SharedPreferences
+  Future<void> _saveSwitchState(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('biometric_enabled', value);
+  }
+
+  void toggleSwitch(bool value) {
+    setState(() {
+      isSwitched = value;
+    });
+    _saveSwitchState(value); // Save the new state when the switch is toggled
   }
 
   @override
@@ -76,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 children: [
                   Text(
-                    "Master Password",
+                    "Change Password",
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const Spacer(),
@@ -116,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     activeColor: Colors.blue,
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

@@ -20,6 +20,17 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   bool isObscure = true;
   var formKey = GlobalKey<FormState>();
 
+  Future<void> _saveKey(String key) async {
+    List<String>? keys = (await storage.read(key: 'keys'))?.split(',') ?? [];
+    keys.add(key);
+    await storage.write(key: 'keys', value: keys.join(','));
+  }
+
+  Future<List<String>> _getKeys() async {
+    String? storedKeys = await storage.read(key: 'keys');
+    return storedKeys?.split(',') ?? [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,9 +108,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                       String password = passwordController.text;
                       String key =
                           '${widget.serviceName}_${DateTime.now().millisecondsSinceEpoch}';
+
                       await storage.write(key: '$key-email', value: email);
                       await storage.write(
                           key: '$key-password', value: password);
+
+                      // Save the key in secure storage
+                      await _saveKey(key);
 
                       Navigator.pop(context);
                     }

@@ -20,6 +20,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   List<Account> accounts = [];
   List<bool> isObscureList = [];
+  List<String> keys = [];
 
   @override
   void initState() {
@@ -29,14 +30,15 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
   Future<void> loadAccounts() async {
     List<Account> loadedAccounts = [];
-    Map<String, String> allData = await storage.readAll();
+    keys = (await storage.read(key: 'keys'))?.split(',') ?? [];
 
-    for (String key in allData.keys) {
-      if (key.startsWith(widget.serviceName) && key.endsWith('-email')) {
-        String serviceKey =
-            key.substring(0, key.length - 6); // Removing '-email'
-        String? email = allData[key];
-        String? password = allData['$serviceKey-password'];
+    // Filter out empty keys
+    keys = keys.where((key) => key.isNotEmpty).toList();
+
+    for (String key in keys) {
+      if (key.startsWith(widget.serviceName)) {
+        String? email = await storage.read(key: '$key-email');
+        String? password = await storage.read(key: '$key-password');
 
         if (email != null && password != null) {
           loadedAccounts.add(Account(
@@ -47,9 +49,35 @@ class _ServiceScreenState extends State<ServiceScreen> {
 
     setState(() {
       accounts = loadedAccounts;
-      isObscureList = List<bool>.filled(
-          accounts.length, true); // Initialize the visibility list
+      isObscureList =
+          List<bool>.generate(accounts.length, (index) => true, growable: true);
     });
+  }
+
+  Future<void> deleteAccount(int index) async {
+    if (index >= 0 && index < accounts.length) {
+      String key = keys[index]; // Get the corresponding key
+      if (key.isEmpty) return; // Skip if the key is empty
+
+      String emailKey = '$key-email';
+      String passwordKey = '$key-password';
+
+      // Delete the keys from secure storage
+      await storage.delete(key: emailKey);
+      await storage.delete(key: passwordKey);
+
+      // Remove the key from the keys list
+      keys.removeAt(index);
+
+      // Update the stored keys list
+      await storage.write(key: 'keys', value: keys.join(','));
+
+      // Remove the account from the local list
+      setState(() {
+        accounts.removeAt(index);
+        isObscureList.removeAt(index); // Remove from growable list
+      });
+    }
   }
 
   @override
@@ -57,6 +85,14 @@ class _ServiceScreenState extends State<ServiceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.serviceName),
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 18,
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -69,17 +105,30 @@ class _ServiceScreenState extends State<ServiceScreen> {
                   subtitle: isObscureList[index]
                       ? Text('********')
                       : SelectableText(accounts[index].password),
-                  trailing: GestureDetector(
-                    child: isObscureList[index]
-                        ? Icon(Icons.visibility_off_outlined,
-                            size: 18, color: MyTheme.whiteColor)
-                        : Icon(Icons.visibility_outlined,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        child: isObscureList[index]
+                            ? Icon(Icons.visibility_off_outlined,
+                                size: 18, color: MyTheme.whiteColor)
+                            : Icon(Icons.visibility_outlined,
+                                size: 18, color: MyTheme.whiteColor),
+                        onTap: () {
+                          setState(() {
+                            isObscureList[index] = !isObscureList[index];
+                          });
+                        },
+                      ),
+                      SizedBox(width: 10),
+                      GestureDetector(
+                        child: Icon(Icons.delete,
                             size: 18, color: MyTheme.whiteColor),
-                    onTap: () {
-                      setState(() {
-                        isObscureList[index] = !isObscureList[index];
-                      });
-                    },
+                        onTap: () async {
+                          await deleteAccount(index);
+                        },
+                      ),
+                    ],
                   ),
                 );
               },

@@ -3,42 +3,38 @@ import 'package:flutter/material.dart';
 import '../../config/utils/custom_Item.dart';
 import '../data_screen/accounts_screen.dart';
 
-class GamingScreen extends StatelessWidget {
-  static String routeName = 'gaming-screen';
+class EmailScreen extends StatelessWidget {
+  static String routeName = 'email-screen';
 
   final List<String> itemsImages = [
-    'assets/images/gaming/steam.png',
-    'assets/images/gaming/epic_games.png',
-    'assets/images/gaming/psn.png',
-    'assets/images/gaming/xbox.png',
-    'assets/images/gaming/Switch.jpeg',
-    'assets/images/gaming/riot_games.png',
-    'assets/images/gaming/ea_play.png',
-    'assets/images/gaming/ubisoft.png',
-    'assets/images/gaming/blizzard.png',
-    'assets/images/gaming/GOG.jpeg',
+    'assets/images/email/Gmail.png',
+    'assets/images/email/iCloud.jpeg',
+    'assets/images/email/Microsoft.jpeg',
+    'assets/images/email/Outlook.jpeg',
+    'assets/images/email/ProtonMail.jpeg',
+    'assets/images/email/Yahoo.jpeg',
+    'assets/images/email/Yandex.jpeg',
+    'assets/images/email/mail_ru.jpeg',
   ];
 
   final List<String> itemsTag = [
-    'Steam',
-    'Epic Games',
-    'PSN',
-    'Xbox',
-    'Nintendo Switch',
-    'Riot Games',
-    'EA Play',
-    'Ubisoft Connect',
-    'Blizzard',
-    'GOG Galaxy',
+    'Gmail',
+    'iCloud',
+    'Microsoft',
+    'Outlook',
+    'ProtonMail',
+    'Yahoo',
+    'Yandex',
+    'mail.ru',
   ];
 
-  GamingScreen({super.key});
+  EmailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gaming'),
+        title: const Text('Emails'),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: const Icon(
@@ -84,7 +80,7 @@ class GamingScreen extends StatelessWidget {
                   );
                 },
               ),
-            ),
+            )
           ],
         ),
       ),

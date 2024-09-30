@@ -2,18 +2,21 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sova_vault/feature/content_pages/gaming_screen.dart';
-import 'package:sova_vault/feature/content_pages/social_media_screen.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/theme/my_theme.dart';
 import '../../config/utils/custom_Item.dart';
-import '../../config/utils/custom_bottom_navigation_bar.dart';
+import '../content_pages/email_screen.dart';
+import '../content_pages/gaming_screen.dart';
+import '../content_pages/shopping_screen.dart';
+import '../content_pages/social_media_screen.dart';
 import '../settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  static String routeName = 'home-screen';
+  static const String routeName = 'home-screen';
 
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,35 +24,73 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   File? _image;
-  List<String> itemsImages = [
-    'assets/images/gaming.png',
-    'assets/images/social.png',
-    'assets/images/email.png',
-    'assets/images/other.png',
+  final List<String> itemsImages = [
+    'assets/images/gaming.jpg',
+    'assets/images/social.jpg',
+    'assets/images/email.jpeg',
+    'assets/images/shopping.png',
   ];
-  List<String> itemsTag = [
+  final List<String> itemsTag = [
     'Gaming',
     'Social Media',
     'Emails',
-    'Other',
+    'Shopping',
   ];
 
-  List<String> route = [
+  final List<String> route = [
     GamingScreen.routeName,
     SocialScreen.routeName,
-    'Banking',
-    'Other',
+    EmailScreen.routeName,
+    ShoppingScreen.routeName,
   ];
 
+  // Pick an image and save it locally
   Future<void> _pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      final directory = await getApplicationDocumentsDirectory();
+      final imagePath = '${directory.path}/${pickedFile.name}';
+      final savedImage = await File(pickedFile.path).copy(imagePath);
+
+      // Save the image path in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_image', savedImage.path);
+
       setState(() {
-        _image = File(pickedFile.path);
+        _image = savedImage;
       });
     }
+  }
+
+  // Load the image if it exists
+  Future<void> _loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? imagePath = prefs.getString('profile_image');
+
+    if (imagePath != null) {
+      final imageFile = File(imagePath);
+
+      // Check if the image still exists
+      if (await imageFile.exists()) {
+        setState(() {
+          _image = imageFile;
+        });
+      } else {
+        // If the file doesn't exist, reset to default
+        prefs.remove('profile_image');
+        setState(() {
+          _image = null;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage(); // Load image when the widget is initialized
   }
 
   @override
@@ -57,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "DashBoard",
+          "Dashboard",
           style: Theme.of(context).textTheme.titleLarge,
         ),
         centerTitle: true,
@@ -65,14 +106,15 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: GestureDetector(
-                onTap: () =>
-                    Navigator.pushNamed(context, SettingsScreen.routeName),
-                child: Image.asset(
-                  'assets/icons/settings.png',
-                  width: 28,
-                  height: 28,
-                )),
-          )
+              onTap: () =>
+                  Navigator.pushNamed(context, SettingsScreen.routeName),
+              child: Image.asset(
+                'assets/icons/settings.png',
+                width: 28,
+                height: 28,
+              ),
+            ),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -85,14 +127,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: MyTheme.primaryColor,
-                      radius: 80,
-                      backgroundImage: _image != null
-                          ? FileImage(_image!)
-                          : const AssetImage('assets/images/profile.png')
-                              as ImageProvider,
-                      child: _image = null,
+                    RepaintBoundary(
+                      child: CircleAvatar(
+                        backgroundColor: MyTheme.primaryColor,
+                        radius: 80,
+                        backgroundImage: _image != null
+                            ? FileImage(_image!)
+                            : const AssetImage('assets/images/profile.png')
+                                as ImageProvider,
+                      ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -101,9 +144,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: _pickImage,
                         child: Container(
                           decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  width: 1, color: Colors.redAccent)),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                           child: CircleAvatar(
                             radius: 12,
                             backgroundColor: MyTheme.primaryColor,
@@ -128,18 +174,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, route[index]);
-                        },
+                      onTap: () {
+                        Navigator.pushNamed(context, route[index]);
+                      },
+                      child: RepaintBoundary(
                         child: CustomItem(
                           tagText: itemsTag[index],
                           imagePath: itemsImages[index],
                           style: Theme.of(context).textTheme.titleLarge,
                           height: 135,
-                        ));
+                        ),
+                      ),
+                    );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),

@@ -3,42 +3,46 @@ import 'package:flutter/material.dart';
 import '../../config/utils/custom_Item.dart';
 import '../data_screen/accounts_screen.dart';
 
-class GamingScreen extends StatelessWidget {
-  static String routeName = 'gaming-screen';
+class ShoppingScreen extends StatelessWidget {
+  static String routeName = 'shopping-screen';
 
   final List<String> itemsImages = [
-    'assets/images/gaming/steam.png',
-    'assets/images/gaming/epic_games.png',
-    'assets/images/gaming/psn.png',
-    'assets/images/gaming/xbox.png',
-    'assets/images/gaming/Switch.jpeg',
-    'assets/images/gaming/riot_games.png',
-    'assets/images/gaming/ea_play.png',
-    'assets/images/gaming/ubisoft.png',
-    'assets/images/gaming/blizzard.png',
-    'assets/images/gaming/GOG.jpeg',
+    'assets/images/shopping/Amazon.jpeg',
+    'assets/images/shopping/noon.jpeg',
+    'assets/images/shopping/Jumia.jpeg',
+    'assets/images/shopping/Raya.png',
+    'assets/images/shopping/talabat.jpg',
+    'assets/images/shopping/Waffarha.jpg',
+    'assets/images/shopping/Elmenus.png',
+    'assets/images/shopping/Breadfast.jpg',
+    'assets/images/shopping/Dubizzle.jpg',
+    'assets/images/shopping/Mrsool.jpg',
+    'assets/images/shopping/Ubuy.jpg',
+    'assets/images/shopping/AliExpress.jpg',
   ];
 
   final List<String> itemsTag = [
-    'Steam',
-    'Epic Games',
-    'PSN',
-    'Xbox',
-    'Nintendo Switch',
-    'Riot Games',
-    'EA Play',
-    'Ubisoft Connect',
-    'Blizzard',
-    'GOG Galaxy',
+    'Amazon',
+    'Noon',
+    'Jumia',
+    'Raya Shop',
+    'Talabat',
+    'Waffarha',
+    'Elmenus',
+    'Breadfast',
+    'Dubizzle',
+    'Mrsool',
+    'Ubuy',
+    'AliExpress',
   ];
 
-  GamingScreen({super.key});
+  ShoppingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gaming'),
+        title: const Text('Shopping'),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: const Icon(
