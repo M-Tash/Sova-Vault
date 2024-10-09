@@ -71,7 +71,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   const SizedBox(height: 5),
                   CustomTextFormField(
                     controller: titleController,
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.name,
                     maxLength: 50,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {

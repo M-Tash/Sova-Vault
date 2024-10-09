@@ -46,17 +46,17 @@ class MyApp extends StatelessWidget {
       routes: {
         SplashScreen.routeName: (context) => SplashScreen(),
         WelcomeScreen.routeName: (context) => const WelcomeScreen(),
-        PasswordScreen.routeName: (context) => PasswordScreen(),
+        PasswordScreen.routeName: (context) => const PasswordScreen(),
         // BiometricScreen.routeName: (context) => const BiometricScreen(),
-        HomeScreen.routeName: (context) => HomeScreen(),
-        SettingsScreen.routeName: (context) => SettingsScreen(),
+        HomeScreen.routeName: (context) => const HomeScreen(),
+        SettingsScreen.routeName: (context) => const SettingsScreen(),
         ChangePasswordScreen.routeName: (context) => ChangePasswordScreen(),
         SocialScreen.routeName: (context) => SocialScreen(),
         GamingScreen.routeName: (context) => GamingScreen(),
         EmailScreen.routeName: (context) => EmailScreen(),
         ShoppingScreen.routeName: (context) => ShoppingScreen(),
         LoginPasswordScreen.routeName: (context) =>
-            LoginPasswordScreen(isBiometricEnabled: false),
+            const LoginPasswordScreen(isBiometricEnabled: false),
         // Default false, to be updated from SplashScreen
       },
       theme: MyTheme.darkMode,
