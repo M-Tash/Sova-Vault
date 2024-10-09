@@ -1,39 +1,141 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/theme/my_theme.dart';
 import '../../config/utils/custom_Item.dart';
+import '../../model/item_model.dart';
 import '../data_screen/accounts_screen.dart';
+import 'add_item_screen.dart'; // Import the AddItemScreen
 
-class EmailScreen extends StatelessWidget {
+class EmailScreen extends StatefulWidget {
   static String routeName = 'email-screen';
-
-  final List<String> itemsImages = [
-    'assets/images/email/Gmail.png',
-    'assets/images/email/iCloud.jpeg',
-    'assets/images/email/Microsoft.jpeg',
-    'assets/images/email/Outlook.jpeg',
-    'assets/images/email/ProtonMail.jpeg',
-    'assets/images/email/Yahoo.jpeg',
-    'assets/images/email/Yandex.jpeg',
-    'assets/images/email/mail_ru.jpeg',
-  ];
-
-  final List<String> itemsTag = [
-    'Gmail',
-    'iCloud',
-    'Microsoft',
-    'Outlook',
-    'ProtonMail',
-    'Yahoo',
-    'Yandex',
-    'mail.ru',
-  ];
 
   EmailScreen({super.key});
 
   @override
+  _EmailScreenState createState() => _EmailScreenState();
+}
+
+class _EmailScreenState extends State<EmailScreen> {
+  List<Item> items = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems(); // Load saved items when the screen initializes
+  }
+
+  // Load saved items from SharedPreferences
+  void _loadItems() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedItems = prefs.getString('emailItems');
+
+    if (savedItems != null) {
+      List<dynamic> decodedItems = jsonDecode(savedItems);
+      setState(() {
+        items = decodedItems
+            .map((item) =>
+                Item.fromJson(item)) // Use fromJson to handle deserialization
+            .toList();
+      });
+    } else {
+      // Initialize with default items if nothing is saved
+      setState(() {
+        items = [
+          Item(itemImage: 'assets/images/email/Gmail.png', itemTag: 'Gmail'),
+          Item(itemImage: 'assets/images/email/iCloud.jpeg', itemTag: 'iCloud'),
+          Item(
+              itemImage: 'assets/images/email/Microsoft.jpeg',
+              itemTag: 'Microsoft'),
+          Item(
+              itemImage: 'assets/images/email/Outlook.jpeg',
+              itemTag: 'Outlook'),
+          Item(
+              itemImage: 'assets/images/email/ProtonMail.jpeg',
+              itemTag: 'ProtonMail'),
+          Item(itemImage: 'assets/images/email/Yahoo.jpeg', itemTag: 'Yahoo'),
+          Item(itemImage: 'assets/images/email/Yandex.jpeg', itemTag: 'Yandex'),
+          Item(
+              itemImage: 'assets/images/email/mail_ru.jpeg',
+              itemTag: 'mail.ru'),
+        ];
+      });
+    }
+  }
+
+  // Save items to SharedPreferences
+  void _saveItems() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<Map<String, dynamic>> itemList =
+        items.map((item) => item.toJson()).toList();
+    prefs.setString('emailItems', jsonEncode(itemList));
+  }
+
+  // Navigate to the AddItemScreen
+  void _navigateAndAddItem() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddItemScreen()),
+    );
+
+    if (result != null) {
+      setState(() {
+        items.add(Item(
+          itemImage: result['image'],
+          itemTag: result['title'],
+          isUserAdded: true, // Mark the item as user-added
+        ));
+      });
+      _saveItems(); // Save the updated list after adding
+    }
+  }
+
+  // Remove a user-added item with confirmation dialog
+  void _removeItemWithConfirmation(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: MyTheme.primaryColor,
+          title: const Text('Warning'),
+          content: Text(
+            'The Item you added will be removed. Are you sure you want to delete this item?',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          actions: [
+            TextButton(
+              child: Text(
+                'Cancel',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(); // Close the dialog without deleting
+              },
+            ),
+            TextButton(
+              child: Text(
+                'OK',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                setState(() {
+                  items.removeAt(index); // Remove the item
+                });
+                _saveItems(); // Save the updated list after removal
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Get the screen size and orientation
     final Size screenSize = MediaQuery.of(context).size;
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
@@ -42,14 +144,26 @@ class EmailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Emails'),
         leading: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios,
+          onTap: () => Navigator.pop(context),
+          child: Icon(
+            Icons.arrow_back_ios,
+            size:
+                isPortrait ? screenSize.width * 0.06 : screenSize.width * 0.04,
+            color: MyTheme.whiteColor,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.add,
               size: isPortrait
-                  ? screenSize.width * 0.06
-                  : screenSize.width * 0.04, // Adjust the size dynamically
+                  ? screenSize.width * 0.08
+                  : screenSize.width * 0.05,
               color: MyTheme.whiteColor,
-            )),
+            ),
+            onPressed: _navigateAndAddItem, // Navigate to add item screen
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -59,37 +173,54 @@ class EmailScreen extends StatelessWidget {
           children: [
             Expanded(
               child: GridView.builder(
-                itemCount: itemsTag.length,
+                itemCount: items.length, // Use the length of the items list
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  // Adjust the number of columns based on orientation
                   crossAxisCount: isPortrait ? 2 : 4,
                   crossAxisSpacing: 20,
                   mainAxisSpacing: 20,
-                  childAspectRatio: isPortrait
-                      ? 1.0
-                      : 1.0, // Adjust aspect ratio based on orientation
+                  childAspectRatio: isPortrait ? 1.0 : 1.0,
                 ),
                 itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        ServiceScreen.routeName,
-                        arguments: {
-                          'serviceName': itemsTag[index],
+                  return Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            ServiceScreen.routeName,
+                            arguments: {
+                              'serviceName': items[index].itemTag,
+                              // Use itemTag
+                            },
+                          );
                         },
-                      );
-                    },
-                    child: RepaintBoundary(
-                      child: CustomItem(
-                        tagText: itemsTag[index],
-                        imagePath: itemsImages[index],
-                        style: Theme.of(context).textTheme.titleSmall,
-                        height: isPortrait
-                            ? 120
-                            : 100, // Adjust height based on orientation
+                        child: RepaintBoundary(
+                          child: CustomItem(
+                            tagText: items[index].itemTag, // Use itemTag
+                            imagePath: items[index].itemImage, // Use itemImage
+                            style: Theme.of(context).textTheme.titleSmall,
+                            height: isPortrait ? 120 : 100,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (items[index]
+                          .isUserAdded) // Only show delete for user-added items
+                        Positioned(
+                          top: -10,
+                          right: -10,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                              size: isPortrait
+                                  ? screenSize.width * 0.06
+                                  : screenSize.width * 0.04,
+                            ),
+                            onPressed: () => _removeItemWithConfirmation(
+                                index), // Show the confirmation dialog
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),

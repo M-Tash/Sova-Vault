@@ -5,15 +5,15 @@ import 'package:sova_vault/feature/content_pages/gaming_screen.dart';
 import 'package:sova_vault/feature/content_pages/social_media_screen.dart';
 import 'package:sova_vault/feature/data_screen/accounts_screen.dart';
 import 'package:sova_vault/feature/home/home_screen.dart';
-import 'package:sova_vault/feature/intro/password_screen.dart';
 import 'package:sova_vault/feature/intro/splash_screen.dart'; // Import the SplashScreen
 import 'package:sova_vault/feature/intro/welcome_screen.dart';
 import 'package:sova_vault/feature/settings/change_password_screen.dart';
 import 'package:sova_vault/feature/settings/settings_screen.dart';
 
+import 'feature/auth/login_password_screen.dart'; // Import the login screen
+import 'feature/auth/password_screen.dart';
 import 'feature/content_pages/email_screen.dart';
 import 'feature/content_pages/shopping_screen.dart';
-import 'feature/intro/login_password_screen.dart'; // Import the login screen
 
 void main() {
   runApp(const MyApp());

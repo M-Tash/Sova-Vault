@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sova_vault/config/theme/my_theme.dart';
-import 'package:sova_vault/feature/intro/password_screen.dart';
+
+import '../auth/password_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   static String routeName = 'welcome-screen';

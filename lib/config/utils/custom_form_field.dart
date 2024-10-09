@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:sova_vault/config/theme/my_theme.dart';
 
 class CustomTextFormField extends StatelessWidget {
-  Widget? suffixIcon;
-  bool isObscure;
-  bool? isSuffixIcon;
-  TextInputType keyboardType;
-  String? Function(String?)? validator;
-  TextEditingController? controller;
-  double width;
-  double height;
-  int maxLength;
+  final Widget? suffixIcon;
+  final bool isObscure;
+  final bool? isSuffixIcon;
+  final TextInputType keyboardType;
+  final String? Function(String?)? validator;
+  final TextEditingController? controller;
+  final double width;
+  final double height;
+  final int maxLength;
+  final void Function(String)? onChanged; // Add this line
 
   CustomTextFormField({
     super.key,
@@ -23,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
     this.width = 358,
     this.height = 50,
     this.maxLength = 6,
+    this.onChanged, // Add this line
   });
 
   @override
@@ -56,6 +58,7 @@ class CustomTextFormField extends StatelessWidget {
             controller: controller,
             obscureText: isObscure,
             keyboardType: keyboardType,
+            onChanged: onChanged, // Set the onChanged callback
           ),
         ),
       ),

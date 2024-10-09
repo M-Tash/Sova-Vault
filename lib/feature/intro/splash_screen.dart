@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sova_vault/config/theme/my_theme.dart';
 import 'package:sova_vault/feature/intro/welcome_screen.dart';
 
-import 'login_password_screen.dart';
+import '../auth/login_password_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   static String routeName = 'splash-screen';
