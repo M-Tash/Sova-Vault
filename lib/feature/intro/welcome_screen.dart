@@ -137,7 +137,7 @@ class WelcomeScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Biometrics',
+                                'Fingerprint authentication',
                                 style: Theme.of(context)
                                     .textTheme
                                     .displayLarge
@@ -149,7 +149,7 @@ class WelcomeScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Use Touch ID or Face ID to unlock Sova Vault',
+                                'Use Touch ID unlock Sova Vault',
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall
