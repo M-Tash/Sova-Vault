@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_form_field.dart';
+import '../../core/utils/custom_form_field.dart';
+import '../../core/utils/validators.dart';
 import 'add_account_cubit/add_account_cubit.dart';
 import 'add_account_cubit/states.dart';
 
@@ -76,12 +78,7 @@ class AddAccountScreen extends StatelessWidget {
                                 controller: cubit.emailController,
                                 keyboardType: TextInputType.emailAddress,
                                 maxLength: 50,
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please Enter Your Email';
-                                  }
-                                  return null;
-                                },
+                                validator: Validators.accEmailValidator,
                               ),
                               const SizedBox(height: 15),
                               Text(
@@ -102,13 +99,7 @@ class AddAccountScreen extends StatelessWidget {
                                     controller: cubit.passwordController,
                                     isObscure: cubit.isObscure,
                                     maxLength: 50,
-                                    validator: (value) {
-                                      if (value == null ||
-                                          value.trim().isEmpty) {
-                                        return 'Please Enter Your Password';
-                                      }
-                                      return null;
-                                    },
+                                    validator: Validators.accPasswordValidator,
                                     suffixIcon: GestureDetector(
                                       onTap: cubit.toggleObscure,
                                       child: Icon(

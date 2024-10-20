@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_Item.dart';
+import '../../core/utils/custom_Item.dart';
 import '../settings/settings_screen.dart';
 import 'cubit/home_cubit.dart';
 import 'cubit/states.dart';

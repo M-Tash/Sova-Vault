@@ -15,3 +15,7 @@ class AuthError extends AuthState {
 class BiometricAuthSuccess extends AuthState {}
 
 class BiometricAuthFailed extends AuthState {}
+
+class AuthVisibilityToggled extends AuthState {}
+
+class SwitchStateUpdated extends AuthState {}

@@ -11,12 +11,13 @@ import 'package:sova_vault/feature/intro/welcome_screen.dart';
 import 'package:sova_vault/feature/settings/change_password_screen.dart';
 import 'package:sova_vault/feature/settings/settings_screen.dart';
 
-import 'feature/auth/login_password_screen.dart';
-import 'feature/auth/password_screen.dart';
-import 'feature/content_pages/email_screen.dart';
-import 'feature/content_pages/shopping_screen.dart';
 import 'feature/auth/cubit/auth_cubit.dart';
 import 'feature/auth/cubit/states.dart';
+import 'feature/auth/login_password_screen.dart';
+import 'feature/auth/password_screen.dart';
+import 'feature/content_pages/category_cubit/category_cubit.dart';
+import 'feature/content_pages/email_screen.dart';
+import 'feature/content_pages/shopping_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,8 +30,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthCubit()..loadSwitchState(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthCubit()..loadSwitchState(),
+        ),
+        BlocProvider(
+          create: (context) => CategoriesCubit(),
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         initialRoute: SplashScreen.routeName,
@@ -57,14 +65,15 @@ class MyApp extends StatelessWidget {
         routes: {
           SplashScreen.routeName: (context) => SplashScreen(),
           WelcomeScreen.routeName: (context) => const WelcomeScreen(),
-          PasswordScreen.routeName: (context) => const PasswordScreen(),
+          PasswordScreen.routeName: (context) => PasswordScreen(),
           HomeScreen.routeName: (context) => const HomeScreen(),
           SettingsScreen.routeName: (context) => const SettingsScreen(),
-          ChangePasswordScreen.routeName: (context) => ChangePasswordScreen(),
-          SocialScreen.routeName: (context) => SocialScreen(),
-          GamingScreen.routeName: (context) => GamingScreen(),
-          EmailScreen.routeName: (context) => EmailScreen(),
-          ShoppingScreen.routeName: (context) => ShoppingScreen(),
+          ChangePasswordScreen.routeName: (context) =>
+              const ChangePasswordScreen(),
+          SocialScreen.routeName: (context) => const SocialScreen(),
+          GamingScreen.routeName: (context) => const GamingScreen(),
+          EmailScreen.routeName: (context) => const EmailScreen(),
+          ShoppingScreen.routeName: (context) => const ShoppingScreen(),
           // LoginPasswordScreen is now handled in onGenerateRoute
         },
         theme: MyTheme.darkMode,

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../config/theme/my_theme.dart';
+import '../../core/utils/custom_form_field.dart';
+import '../../core/utils/custom_snack_bar.dart';
+import '../../core/utils/validators.dart';
 import 'cubit/settings_cubit.dart';
 import 'cubit/states.dart';
-import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_snack_bar.dart';
-import '../../config/utils/custom_form_field.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   static String routeName = 'change-password-screen';
@@ -105,14 +107,7 @@ class ChangePasswordScreen extends StatelessWidget {
                               children: [
                                 CustomTextFormField(
                                   maxLength: 20,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please Enter Your Password';
-                                    } else if (value.length < 6) {
-                                      return 'Password must be at least 6 characters long';
-                                    }
-                                    return null;
-                                  },
+                                  validator: Validators.passwordValidator,
                                   controller: cubit.passwordController,
                                   isObscure: isObscure,
                                   suffixIcon: GestureDetector(
@@ -137,12 +132,9 @@ class ChangePasswordScreen extends StatelessWidget {
                                 const SizedBox(height: 10),
                                 CustomTextFormField(
                                   maxLength: 20,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please Confirm Your Password';
-                                    }
-                                    return null;
-                                  },
+                                  validator: (value) =>
+                                      Validators.confirmPasswordValidator(
+                                          value, cubit.passwordController.text),
                                   controller: cubit.confirmPasswordController,
                                   isObscure: isObscure2,
                                   suffixIcon: GestureDetector(

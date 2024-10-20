@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_form_field.dart';
+import '../../core/utils/custom_form_field.dart';
+import '../../core/utils/validators.dart';
 import 'cubit/add_item_cubit.dart';
 import 'cubit/states.dart';
 
 class AddItemScreen extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -68,16 +71,14 @@ class AddItemScreen extends StatelessWidget {
                                 ),
                           ),
                           const SizedBox(height: 5),
-                          CustomTextFormField(
-                            controller: cubit.titleController,
-                            keyboardType: TextInputType.name,
-                            maxLength: 50,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please Enter Your Email';
-                              }
-                              return null;
-                            },
+                          Form(
+                            key: _formKey,
+                            child: CustomTextFormField(
+                              controller: cubit.titleController,
+                              keyboardType: TextInputType.text,
+                              maxLength: 50,
+                              validator: Validators.titleValidator,
+                            ),
                           ),
                           const SizedBox(height: 20),
                           GestureDetector(
@@ -127,7 +128,11 @@ class AddItemScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: GestureDetector(
-                      onTap: () => cubit.submitItem(),
+                      onTap: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          cubit.submitItem();
+                        }
+                      },
                       child: Container(
                         height: 48,
                         width: double.infinity,

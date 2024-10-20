@@ -1,112 +1,34 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_Item.dart';
-import '../../model/item_model.dart';
+import '../../core/utils/custom_Item.dart';
 import '../data_screen/service_screen.dart';
-import 'add_item_screen.dart'; // Import the AddItemScreen
+import 'add_item_screen.dart';
+import 'category_cubit/category_cubit.dart';
+import 'category_cubit/states.dart';
 
-class SocialScreen extends StatefulWidget {
+class SocialScreen extends StatelessWidget {
   static String routeName = 'social-screen';
 
   const SocialScreen({super.key});
 
-  @override
-  _SocialScreenState createState() => _SocialScreenState();
-}
-
-class _SocialScreenState extends State<SocialScreen> {
-  List<Item> items = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadItems(); // Load saved items when the screen initializes
-  }
-
-  // Load saved items from SharedPreferences
-  void _loadItems() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? savedItems = prefs.getString('socialItems');
-
-    if (savedItems != null) {
-      List<dynamic> decodedItems = jsonDecode(savedItems);
-      setState(() {
-        items = decodedItems
-            .map((item) =>
-                Item.fromJson(item)) // Use fromJson for deserialization
-            .toList();
-      });
-    } else {
-      // Initialize with default items if nothing is saved
-      setState(() {
-        items = [
-          Item(
-              itemImage: 'assets/images/social/facebook.png',
-              itemTag: 'Facebook'),
-          Item(
-              itemImage: 'assets/images/social/instagram.png',
-              itemTag: 'Instagram'),
-          Item(
-              itemImage: 'assets/images/social/twitter.png',
-              itemTag: 'X(Twitter)'),
-          Item(itemImage: 'assets/images/social/tiktok.png', itemTag: 'TikTok'),
-          Item(
-              itemImage: 'assets/images/social/snapchat.png',
-              itemTag: 'Snapchat'),
-          Item(
-              itemImage: 'assets/images/social/linkedin.png',
-              itemTag: 'LinkedIn'),
-          Item(itemImage: 'assets/images/social/reddit.png', itemTag: 'Reddit'),
-          Item(
-              itemImage: 'assets/images/social/discord.png',
-              itemTag: 'Discord'),
-          Item(
-              itemImage: 'assets/images/social/Twitch.jpeg', itemTag: 'Twitch'),
-          Item(itemImage: 'assets/images/social/kick.jpeg', itemTag: 'Kick'),
-          Item(
-              itemImage: 'assets/images/social/Threads.jpeg',
-              itemTag: 'Threads'),
-          Item(
-              itemImage: 'assets/images/social/Pinterest.jpeg',
-              itemTag: 'Pinterest'),
-        ];
-      });
-    }
-  }
-
-  // Save items to SharedPreferences
-  void _saveItems() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> itemList =
-        items.map((item) => item.toJson()).toList();
-    prefs.setString('socialItems', jsonEncode(itemList));
-  }
-
-  // Navigate to the AddItemScreen
-  void _navigateAndAddItem() async {
+  void _navigateAndAddItem(BuildContext context) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AddItemScreen()),
     );
 
     if (result != null) {
-      setState(() {
-        items.add(Item(
-          itemImage: result['image'],
-          itemTag: result['title'],
-          isUserAdded: true, // Mark the item as user-added
-        ));
-      });
-      _saveItems(); // Save the updated list after adding
+      context.read<CategoriesCubit>().addItem(
+            CategoryType.social,
+            result['image'],
+            result['title'],
+          );
     }
   }
 
-  // Remove a user-added item with confirmation dialog
-  void _removeItemWithConfirmation(int index) {
+  void _removeItemWithConfirmation(BuildContext context, int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -123,10 +45,7 @@ class _SocialScreenState extends State<SocialScreen> {
                 'Cancel',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Close the dialog without deleting
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: Text(
@@ -134,11 +53,10 @@ class _SocialScreenState extends State<SocialScreen> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                setState(() {
-                  items.removeAt(index); // Remove the item
-                });
-                _saveItems(); // Save the updated list after removal
+                Navigator.of(context).pop();
+                context
+                    .read<CategoriesCubit>()
+                    .removeItem(CategoryType.social, index);
               },
             ),
           ],
@@ -149,13 +67,18 @@ class _SocialScreenState extends State<SocialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Load items when the widget is first built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoriesCubit>().loadItems(CategoryType.social);
+    });
+
     final Size screenSize = MediaQuery.of(context).size;
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Social Media'),
+        title: const Text('Social'),
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Icon(
@@ -174,72 +97,84 @@ class _SocialScreenState extends State<SocialScreen> {
                   : screenSize.width * 0.05,
               color: MyTheme.whiteColor,
             ),
-            onPressed: _navigateAndAddItem, // Navigate to add item screen
+            onPressed: () => _navigateAndAddItem(context),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: GridView.builder(
-                itemCount: items.length, // Use the length of the items list
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: isPortrait ? 2 : 4,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 5,
-                  childAspectRatio: isPortrait ? 1.0 : 1.0,
-                ),
-                itemBuilder: (context, index) {
-                  return Stack(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            ServiceScreen.routeName,
-                            arguments: {
-                              'serviceName': items[index].itemTag,
-                              // Use itemTag
+      body: BlocBuilder<CategoriesCubit, CategoriesState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.error != null) {
+            return Center(child: Text(state.error!));
+          }
+
+          final items = state.items[CategoryType.social] ?? [];
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: GridView.builder(
+                    itemCount: items.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isPortrait ? 2 : 4,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: isPortrait ? 1.0 : 1.0,
+                    ),
+                    itemBuilder: (context, index) {
+                      return Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                ServiceScreen.routeName,
+                                arguments: {
+                                  'serviceName': items[index].itemTag,
+                                },
+                              );
                             },
-                          );
-                        },
-                        child: RepaintBoundary(
-                          child: CustomItem(
-                            tagText: items[index].itemTag, // Use itemTag
-                            imagePath: items[index].itemImage, // Use itemImage
-                            style: Theme.of(context).textTheme.titleSmall,
-                            height: isPortrait ? 120 : 100,
-                          ),
-                        ),
-                      ),
-                      if (items[index]
-                          .isUserAdded) // Only show delete for user-added items
-                        Positioned(
-                          top: -10,
-                          right: -10,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                              size: isPortrait
-                                  ? screenSize.width * 0.06
-                                  : screenSize.width * 0.04,
+                            child: RepaintBoundary(
+                              child: CustomItem(
+                                tagText: items[index].itemTag,
+                                imagePath: items[index].itemImage,
+                                style: Theme.of(context).textTheme.titleSmall,
+                                height: isPortrait ? 120 : 100,
+                              ),
                             ),
-                            onPressed: () => _removeItemWithConfirmation(
-                                index), // Show the confirmation dialog
                           ),
-                        ),
-                    ],
-                  );
-                },
-              ),
+                          if (items[index].isUserAdded)
+                            Positioned(
+                              top: -10,
+                              right: -10,
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                  size: isPortrait
+                                      ? screenSize.width * 0.06
+                                      : screenSize.width * 0.04,
+                                ),
+                                onPressed: () =>
+                                    _removeItemWithConfirmation(context, index),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

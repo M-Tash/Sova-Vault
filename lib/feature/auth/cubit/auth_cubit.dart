@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sova_vault/feature/auth/cubit/states.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -18,21 +18,20 @@ class AuthCubit extends Cubit<AuthState> {
   bool isSwitched = false;
   bool isBiometricEnabled = false;
 
-  void toggleObscure() {
-    isObscure = !isObscure;
-    emit(AuthInitial());
-  }
-
-  void toggleObscure2() {
-    isObscure2 = !isObscure2;
-    emit(AuthInitial());
+  void toggleObscure(int fieldIndex) {
+    if (fieldIndex == 1) {
+      isObscure = !isObscure;
+    } else if (fieldIndex == 2) {
+      isObscure2 = !isObscure2;
+    }
+    emit(AuthVisibilityToggled());
   }
 
   Future<void> loadSwitchState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     isSwitched = prefs.getBool('biometric_enabled') ?? false;
     isBiometricEnabled = isSwitched;
-    emit(AuthInitial());
+    emit(SwitchStateUpdated());
   }
 
   Future<void> toggleSwitch(bool value) async {
@@ -40,7 +39,7 @@ class AuthCubit extends Cubit<AuthState> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('biometric_enabled', value);
     isBiometricEnabled = value;
-    emit(AuthInitial());
+    emit(SwitchStateUpdated());
   }
 
   Future<void> register() async {

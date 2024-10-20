@@ -6,7 +6,7 @@ import 'package:sova_vault/feature/data_screen/service_cubit/service_cubit.dart'
 import 'package:sova_vault/feature/data_screen/service_cubit/states.dart';
 
 import '../../config/theme/my_theme.dart';
-import '../../config/utils/custom_snack_bar.dart';
+import '../../core/utils/custom_snack_bar.dart';
 import '../../model/account_model.dart';
 import 'add_account.dart';
 

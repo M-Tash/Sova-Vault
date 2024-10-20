@@ -50,6 +50,7 @@ class CustomTextFormField extends StatelessWidget {
               ),
               filled: true,
               fillColor: MyTheme.lightPrimaryColor,
+              errorStyle: Theme.of(context).textTheme.displayMedium,
               contentPadding:
                   const EdgeInsets.only(bottom: 10, top: 20, left: 20),
             ),

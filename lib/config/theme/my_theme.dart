@@ -8,6 +8,7 @@ class MyTheme {
   static Color lightGreyColor = const Color(0xff94A6C7);
   static Color greyColor = const Color(0xff94B0C7);
   static Color whiteColor = const Color(0xffFFFFFF);
+  static Color redColor = const Color(0xffFF5252);
 
   static ThemeData darkMode = ThemeData(
       scaffoldBackgroundColor: primaryColor,
@@ -39,6 +40,8 @@ class MyTheme {
             fontSize: 16, fontWeight: FontWeight.w400, color: whiteColor),
         displayLarge: TextStyle(
             fontSize: 16, fontWeight: FontWeight.w400, color: whiteColor),
+        displayMedium: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.w300, color: redColor),
         displaySmall: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
@@ -48,7 +51,7 @@ class MyTheme {
             fontSize: 16, fontWeight: FontWeight.bold, color: whiteColor),
         labelSmall: TextStyle(
             fontSize: 14, fontWeight: FontWeight.w400, color: lightGreyColor),
-        labelLarge: TextStyle(
+        labelLarge: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),

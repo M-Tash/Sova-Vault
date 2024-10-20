@@ -1,20 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sova_vault/config/utils/custom_form_field.dart';
-import 'package:sova_vault/feature/home/home_screen.dart';
+import 'package:sova_vault/feature/auth/cubit/auth_cubit.dart';
+import 'package:sova_vault/feature/auth/cubit/states.dart';
+
 import '../../config/theme/my_theme.dart';
-import 'cubit/auth_cubit.dart';
-import 'cubit/states.dart';
+import '../../core/utils/custom_form_field.dart';
+import '../../core/utils/validators.dart';
+import '../home/home_screen.dart';
 
 class PasswordScreen extends StatelessWidget {
   static String routeName = 'password-screen';
+  final _formKey = GlobalKey<FormState>();
 
-  const PasswordScreen({Key? key}) : super(key: key);
+  PasswordScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
     final Size screenSize = MediaQuery.of(context).size;
     final bool isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
@@ -81,7 +83,7 @@ class PasswordScreen extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: screenSize.width * 0.01),
                           child: Form(
-                            key: formKey,
+                            key: _formKey,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -108,17 +110,11 @@ class PasswordScreen extends StatelessWidget {
                                 const SizedBox(height: 5),
                                 CustomTextFormField(
                                   maxLength: 20,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please Enter Your Password';
-                                    } else if (value.length < 6) {
-                                      return 'Password must be at least 6 characters long';
-                                    }
-                                    return null;
-                                  },
+                                  validator: Validators.passwordValidator,
                                   controller: cubit.passwordController,
                                   isObscure: cubit.isObscure,
                                   suffixIcon: GestureDetector(
+                                    onTap: () => cubit.toggleObscure(1),
                                     child: Icon(
                                       cubit.isObscure
                                           ? Icons.visibility_off_outlined
@@ -128,7 +124,6 @@ class PasswordScreen extends StatelessWidget {
                                           : screenSize.width * 0.04,
                                       color: MyTheme.whiteColor,
                                     ),
-                                    onTap: cubit.toggleObscure,
                                   ),
                                   isSuffixIcon: true,
                                   keyboardType: TextInputType.text,
@@ -146,19 +141,13 @@ class PasswordScreen extends StatelessWidget {
                                 const SizedBox(height: 5),
                                 CustomTextFormField(
                                   maxLength: 20,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Please Confirm Your Password';
-                                    }
-                                    if (cubit.confirmPasswordController.text !=
-                                        cubit.passwordController.text) {
-                                      return "Password doesn't match";
-                                    }
-                                    return null;
-                                  },
+                                  validator: (value) =>
+                                      Validators.confirmPasswordValidator(
+                                          value, cubit.passwordController.text),
                                   controller: cubit.confirmPasswordController,
                                   isObscure: cubit.isObscure2,
                                   suffixIcon: GestureDetector(
+                                    onTap: () => cubit.toggleObscure(2),
                                     child: Icon(
                                       cubit.isObscure2
                                           ? Icons.visibility_off_outlined
@@ -168,7 +157,6 @@ class PasswordScreen extends StatelessWidget {
                                           : screenSize.width * 0.04,
                                       color: MyTheme.whiteColor,
                                     ),
-                                    onTap: cubit.toggleObscure2,
                                   ),
                                   isSuffixIcon: true,
                                   keyboardType: TextInputType.text,
@@ -207,7 +195,7 @@ class PasswordScreen extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: GestureDetector(
                     onTap: () {
-                      if (formKey.currentState?.validate() ?? false) {
+                      if (_formKey.currentState?.validate() ?? false) {
                         cubit.register();
                       }
                     },
